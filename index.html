@@ -165,9 +165,10 @@ textarea.inp{min-height:84px;resize:vertical;line-height:1.4}
 .cv-wrap{position:relative;border-radius:10px;overflow:hidden;background:repeating-conic-gradient(#f3f3f3 0 25%,#fff 0 50%) 0 0/20px 20px;box-shadow:0 4px 30px rgba(0,0,0,.08)}
 #cv{display:block;width:100%;height:auto}
 .cv-wrap.tall{max-width:min(420px,100%);margin:0 auto}
+.cv-wrap.port{max-width:min(520px,100%);margin:0 auto}
 .pv-fmt{margin-bottom:10px}
 .pv-fmt .seg{max-width:360px;margin:0 auto}
-@media(min-width:980px){.cv-wrap{max-width:min(620px,calc(100vh - 300px));margin:0 auto}.cv-wrap.tall{max-width:min(420px,calc((100vh - 300px) * .5625))}}
+@media(min-width:980px){.cv-wrap{max-width:min(620px,calc(100vh - 300px));margin:0 auto}.cv-wrap.tall{max-width:min(420px,calc((100vh - 300px) * .5625))}.cv-wrap.port{max-width:min(540px,calc((100vh - 300px) * .8))}}
 .pv-bar{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
 .pv-bar .btn{flex:1}
 .pv-note{font-size:12px;color:var(--ash);text-align:center;margin-top:8px}
@@ -308,6 +309,34 @@ table.imp td{padding:6px 8px;border-top:1px solid var(--line);white-space:nowrap
 .lb .btn.out{background:transparent;color:#fff;border-color:rgba(255,255,255,.4)}
 .lb .btn.out svg{stroke:#fff}
 @media(max-width:600px){.lb-stage{padding:0 8px}.lb-nav{width:38px;height:38px;background:rgba(0,0,0,.35)}.lb-fields{flex-direction:column;flex-basis:100%}.lb-acts{width:100%;justify-content:center}}
+
+/* custom post: free design */
+.blk-quick{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 12px}
+.blk-quick small{color:var(--ash);width:100%}
+.sw-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.swb{width:30px;height:30px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #cfcac6}
+.swb.on{box-shadow:0 0 0 2px #800000}
+.sw-row .colorin{width:40px;height:32px;padding:0;border:1px solid var(--line);border-radius:8px;background:#fff}
+.preset-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
+.preset{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:12px;font-weight:500}
+.preset:hover{border-color:#800000}
+.pv-sw{position:relative;width:100%;height:38px;border-radius:8px;border:1px solid rgba(0,0,0,.08)}
+.pv-sw i{position:absolute;right:6px;bottom:6px;width:14px;height:14px;border-radius:50%;border:2px solid #fff}
+.free-photo{display:flex;gap:12px;align-items:center}
+.free-th{width:110px;height:72px;border-radius:10px;background:#eceae8 center/cover;border:1px dashed #cfcac6;flex:0 0 110px}
+.free-th.has{border-style:solid}
+.lg-item{display:flex;flex-direction:column;gap:4px;width:96px}
+.lg-item .sp-th{width:96px}
+.lg-cap{min-height:32px!important;padding:5px 8px!important;font-size:12px!important}
+.vs-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:8px}
+@media(min-width:560px){.vs-grid{grid-template-columns:1fr 1fr}}
+.vs-side{border:1px solid var(--line);border-radius:12px;padding:8px;background:#fff}
+.vs-side>small{display:block;color:var(--ash);margin-bottom:6px}
+.vs-side .th{width:76px;height:76px;flex:0 0 76px;border-radius:12px;background:#f1efed center/contain no-repeat;border:1.5px dashed #d6d2ce;display:grid;place-items:center;color:var(--ash2)}
+.vs-side .th.has{border:1px solid var(--line);background-color:#fff}
+.vs-side .th svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.6}
+.vs-side .grid{flex:1}
+.vs-tools{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 </style>
 </head>
 <body>
@@ -1224,7 +1253,7 @@ function requestRender() {
 function renderPreview(t, mainEnd) {
   if (!CV || !APP.project || APP.recording) return;   // the recorder owns the video clips while recording
   withFormat(APP.format, () => {
-    if (CV.height !== H) { CV.height = H; CV.parentNode && CV.parentNode.classList.toggle('tall', H > W); }
+    if (CV.height !== H) { CV.height = H; if (CV.parentNode) { CV.parentNode.classList.toggle('tall', H >= 1900); CV.parentNode.classList.toggle('port', H > W && H < 1900); } }
     CTX.setTransform(1, 0, 0, 1, 0, 0); CTX.clearRect(0, 0, W, H);
     CTX.save(); TEMPLATES[APP.project.template].draw(CTX, APP.project, t, { preview: true }); CTX.restore();
     if (mainEnd && t > mainEnd) { CTX.save(); drawOutro(CTX, APP.project, t - mainEnd); CTX.restore(); }
@@ -1359,6 +1388,7 @@ function openEditor(project) {
   const tpl = TEMPLATES[project.template]; if (!tpl) return;
   if (!project.id) project.id = 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
   APP.project = project; APP.view = 'editor'; APP.pane = 'form';
+  if (APP.format === 'portrait' && !tpl.portrait) APP.format = 'square';
   document.body.classList.add('editing');
   app.innerHTML = '';
   const w = h('div', { class: 'wrap' });
@@ -1467,7 +1497,7 @@ function segIn(items, cur, onPick) {
   return wrap;
 }
 function rangeIn(obj, key, min, max, label) {
-  const el = h('input', { type: 'range', class: 'range', min, max, step: 0.01, value: obj[key] || 1 });
+  const el = h('input', { type: 'range', class: 'range', min, max, step: 0.01, value: obj[key] != null ? obj[key] : 1 });
   el.addEventListener('input', () => { obj[key] = parseFloat(el.value); changed(); });
   return fld(label, el);
 }
@@ -1673,8 +1703,8 @@ function pasteDialog(p, redraw, MAX = 20) {
 function buildPreview(pane) {
   CV = h('canvas', { id: 'cv', width: W, height: H }); CTX = CV.getContext('2d');
   pane.appendChild(h('div', { class: 'pv' },
-    h('div', { class: 'pv-fmt' }, segIn(Object.entries(FORMATS).map(([k, f]) => ({ k, label: f.label })), APP.format, k => { APP.format = k; renderPreview(Infinity); playAnimation(); })),
-    h('div', { class: 'cv-wrap' + (APP.format === 'reel' ? ' tall' : '') }, CV),
+    h('div', { class: 'pv-fmt' }, segIn(fmtsFor(TEMPLATES[APP.project.template]).map(([k, f]) => ({ k, label: f.label })), APP.format, k => { APP.format = k; renderPreview(Infinity); playAnimation(); })),
+    h('div', { class: 'cv-wrap' + (APP.format === 'reel' ? ' tall' : APP.format === 'portrait' ? ' port' : '') }, CV),
     h('div', { class: 'pv-bar' },
       h('button', { class: 'btn out', type: 'button', onclick: playAnimation }, svg(ICON.play), 'Play animation'),
       h('button', { class: 'btn out', type: 'button', onclick: () => { APP.project.seed = (Math.random() * 1e9) | 0; changed(); playAnimation(); toast('New look: ' + describeMotion(APP.project), 3000); } }, svg(ICON.spark), 'New look'),
@@ -1721,7 +1751,7 @@ async function downloadPoster(opt) {
   const type = opt.fmt === 'jpg' ? 'image/jpeg' : 'image/png';
   c.toBlob(async blob => {
     if (!blob) return toast('Could not create the image');
-    const name = `baduriya-${p.template}${APP.format === 'reel' ? '-reel' : ''}-${slug(TEMPLATES[p.template].label(p))}.${opt.fmt}`;
+    const name = `baduriya-${p.template}${APP.format === 'square' ? '' : '-' + APP.format}-${slug(TEMPLATES[p.template].label(p))}.${opt.fmt}`;
     const ok = await saveBlob(blob, name);
     if (ok) toast('Poster ready ✓');
   }, type, 0.93);
@@ -4055,7 +4085,8 @@ function kenBurns(box, t, t0) {
 /* =====================================================================
    FORMATS — square poster (1:1) and reel (9:16)
    ===================================================================== */
-const FORMATS = { square: { label: 'Square 1:1', h: 1080 }, reel: { label: 'Reel 9:16', h: 1920 } };
+const FORMATS = { square: { label: 'Square 1:1', h: 1080 }, portrait: { label: 'Portrait 4:5', h: 1350 }, reel: { label: 'Reel 9:16', h: 1920 } };
+const fmtsFor = tpl => Object.entries(FORMATS).filter(([k]) => k !== 'portrait' || (tpl && tpl.portrait));
 function withFormat(fmt, fn) { const old = H; H = (FORMATS[fmt] || FORMATS.square).h; try { return fn(); } finally { H = old; } }
 
 /** Classic designs are square: in reel format they sit on a branded tall card */
@@ -4150,7 +4181,7 @@ async function recordVideoInner(opt) {
   if (APP.anim) { cancelAnimationFrame(APP.anim.raf); APP.anim = null; }
   APP.recording = true;
   const c = mkCanvas(W, fh), x = c.getContext('2d');
-  const live = h('canvas', { width: Math.round(W / 4), height: Math.round(fh / 4), style: { width: (opt.format === 'reel' ? 150 : 240) + 'px', borderRadius: '10px', display: 'block', margin: '0 auto 12px', boxShadow: '0 4px 20px rgba(0,0,0,.15)' } });
+  const live = h('canvas', { width: Math.round(W / 4), height: Math.round(fh / 4), style: { width: (opt.format === 'reel' ? 150 : opt.format === 'portrait' ? 200 : 240) + 'px', borderRadius: '10px', display: 'block', margin: '0 auto 12px', boxShadow: '0 4px 20px rgba(0,0,0,.15)' } });
   const lx = live.getContext('2d');
   const bar = h('div', { class: 'progress' }, h('i'));
   const msg = h('p', { style: { textAlign: 'center' } }, 'Recording… keep this screen open.');
@@ -4216,7 +4247,7 @@ function videoSection() {
   const vt = pickVideoType();
   return h('div', { class: 'vsec' },
     h('h3', { style: { margin: '18px 0 12px' } }, 'Animation video'),
-    fld('Video shape', segIn([{ k: 'reel', label: 'Reel 9:16' }, { k: 'square', label: 'Square 1:1' }], 'reel', k => opt.format = k), 'Reel suits WhatsApp Status, Instagram & Facebook Reels.'),
+    fld('Video shape', segIn([{ k: 'reel', label: 'Reel 9:16' }, ...(TEMPLATES[APP.project.template].portrait ? [{ k: 'portrait', label: 'Portrait 4:5' }] : []), { k: 'square', label: 'Square 1:1' }], 'reel', k => opt.format = k), 'Reel suits WhatsApp Status, Instagram & Facebook Reels.'),
     TEMPLATES[APP.project.template].timeline
       ? fld('Pace', segIn([{ k: 'fast', label: 'Fast' }, { k: 'normal', label: 'Normal' }, { k: 'slow', label: 'Slow' }], APP.project.pace || 'normal', k => { APP.project.pace = k; changed(); }), 'How long each photo / story stays on screen. Video clips play a little longer.')
       : fld('Length', segIn([{ k: '4', label: 'Short ~10s' }, { k: '9', label: 'Standard ~15s' }, { k: '20', label: 'Long ~25s' }], '9', k => opt.hold = +k)),
@@ -6424,6 +6455,296 @@ TEMPLATES.exam = EXAM; TEMPLATES.sports = SPORTS; TEMPLATES.invite = INVITE;
 CATALOG.forEach(g => g.items.forEach(it => { if (['exam', 'sports', 'invite'].includes(it.id)) it.soon = 0; }));
 
 /* =====================================================================
+   CUSTOM POST — "free design": own background (colours or a photo),
+   own colours, optional header, logos rows and team-vs-team block.
+   ===================================================================== */
+const FREE_DEFAULT = { bg: 'design', c1: '#3a0008', c2: '#0b0000', fx: 'spot', photo: null, dark: 0.55, tint: '#1a0000', pos: 0.5,
+  head: 'school', title: '#ffffff', accent: '#e0343c', text: '#ffffff' };
+const FREE_PRESETS = [
+  { k: 'stadium', label: 'Stadium night', v: { c1: '#3a0008', c2: '#0b0000', fx: 'spot', title: '#ffffff', accent: '#e0343c', text: '#ffffff', tint: '#1a0000' } },
+  { k: 'maroon', label: 'Maroon & gold', v: { c1: '#8f0d0d', c2: '#330000', fx: 'rays', title: '#ffffff', accent: '#f2c14e', text: '#ffffff', tint: '#3a0000' } },
+  { k: 'charcoal', label: 'Charcoal', v: { c1: '#2e2b2b', c2: '#0e0d0d', fx: 'sparkle', title: '#ffffff', accent: '#f2c14e', text: '#ffffff', tint: '#111111' } },
+  { k: 'white', label: 'Clean white', v: { c1: '#ffffff', c2: '#e9e6e3', fx: 'none', title: '#800000', accent: '#800000', text: '#2a2a2a', tint: '#ffffff' } },
+  { k: 'cream', label: 'Cream', v: { c1: '#fbf5ea', c2: '#efe1c6', fx: 'none', title: '#5a0000', accent: '#b8862b', text: '#3a2a20', tint: '#fbf5ea' } }
+];
+const SW_BG = ['#3a0008', '#800000', '#5a0000', '#0b0000', '#1f1d1d', '#3a3a3a', '#8a8a8a', '#ffffff', '#f4ede1', '#0f3d24'];
+const SW_INK = ['#ffffff', '#f2dc9e', '#f2c14e', '#e0343c', '#800000', '#2a2a2a', '#000000', '#9a9a9a'];
+
+function freeOf(p) { p.free = Object.assign({}, FREE_DEFAULT, p.free || {}); return p.free; }
+function isFree(p) { return !!(p.free && p.free.bg && p.free.bg !== 'design'); }
+function mixHex(a, b, t) { const p = h2 => { const n = parseInt(h2.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }, A = p(a), B = p(b); return '#' + A.map((v, i) => Math.round(v + (B[i] - v) * t).toString(16).padStart(2, '0')).join(''); }
+function hexA(hex, a) { const m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return `rgba(0,0,0,${a})`; const n = parseInt(m[1], 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; }
+function freePal(p) {
+  const F = p.free, light = lum(F.text) > 0.5;
+  return { k: 'free', ink: F.text, soft: hexA(F.text, 0.85), acc: F.title, kick: F.accent, chip: F.accent, chipInk: inkOn(F.accent), head: F.accent, headInk: inkOn(F.accent),
+    rowA: light ? 'rgba(255,255,255,.09)' : 'rgba(0,0,0,.05)', rowB: light ? 'rgba(255,255,255,.04)' : 'rgba(0,0,0,.025)', line: light ? 'rgba(255,255,255,.22)' : 'rgba(0,0,0,.12)', frame: F.accent };
+}
+
+/* ---------- background ---------- */
+function drawFreeBg(ctx, p, t) {
+  const F = p.free, live = t !== Infinity;
+  const im = F.bg === 'photo' && F.photo ? getImg(F.photo.src) : null;
+  if (im && im.naturalWidth) {
+    const z = 1 + (live ? 0.07 * clamp01(t / 14) : 0), s = Math.max(W / im.naturalWidth, H / im.naturalHeight) * z;
+    const dw = im.naturalWidth * s, dh = im.naturalHeight * s;
+    ctx.drawImage(im, (W - dw) / 2, (H - dh) * (F.pos == null ? 0.5 : F.pos), dw, dh);
+    ctx.fillStyle = hexA(F.tint, F.dark); ctx.fillRect(0, 0, W, H);
+    const vg = ctx.createRadialGradient(W / 2, H * 0.45, Math.min(W, H) * 0.25, W / 2, H * 0.5, Math.max(W, H) * 0.75);
+    vg.addColorStop(0, hexA(F.tint, 0)); vg.addColorStop(1, hexA(F.tint, Math.min(0.85, F.dark + 0.3))); ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+  } else {
+    const g = ctx.createLinearGradient(0, 0, W * 0.25, H); g.addColorStop(0, F.c1); g.addColorStop(1, F.c2); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    const rg = ctx.createRadialGradient(W / 2, H * 0.4, 20, W / 2, H * 0.4, Math.max(W, H) * 0.6);
+    rg.addColorStop(0, lum(F.c1) > 0.6 ? 'rgba(255,255,255,.7)' : 'rgba(255,255,255,.07)'); rg.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
+  }
+  const r = rng((p.seed >>> 0) * 3 + 11);
+  if (F.fx === 'spot') {
+    // stadium floodlights on both sides, beams, and a glowing haze at the bottom
+    const ly = H * (H > W ? 0.34 : 0.4), flick = live ? 0.9 + 0.1 * Math.sin(t * 2.3) : 1;
+    [[12, -1], [W - 12, 1]].forEach(([lx, side]) => {
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      const bg = ctx.createRadialGradient(lx, ly, 4, lx, ly, W * 0.42); bg.addColorStop(0, `rgba(255,235,235,${0.45 * flick})`); bg.addColorStop(0.25, 'rgba(255,120,120,.12)'); bg.addColorStop(1, 'rgba(255,0,0,0)');
+      ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = 'rgba(255,240,240,.06)'; ctx.beginPath(); ctx.moveTo(lx, ly - 30); ctx.lineTo(W / 2 - side * W * 0.05, H * 0.95); ctx.lineTo(W / 2 + side * W * 0.25, H * 0.95); ctx.closePath(); ctx.fill();
+      // the light panel
+      for (let i = 0; i < 4; i++) for (let j = 0; j < 2; j++) { const px = lx - side * (4 + j * 16), py = ly - 30 + i * 17; ctx.fillStyle = `rgba(255,255,255,${0.7 * flick})`; ctx.beginPath(); ctx.arc(px, py, 4.5, 0, Math.PI * 2); ctx.fill(); }
+      ctx.restore();
+    });
+    const hz = ctx.createRadialGradient(W / 2, H * 1.02, 10, W / 2, H, W * 0.75); hz.addColorStop(0, hexA(p.free.accent, 0.45)); hz.addColorStop(1, hexA(p.free.accent, 0)); ctx.fillStyle = hz; ctx.fillRect(0, 0, W, H);
+    for (let i = 0; i < 70; i++) { const px = r() * W, sp = 10 + r() * 40, py = H - ((r() * H * 0.45 + (live ? t * sp : 0)) % (H * 0.45)); ctx.fillStyle = `rgba(255,${150 + Math.floor(r() * 80)},${140 + Math.floor(r() * 60)},${0.12 + r() * 0.3})`; ctx.beginPath(); ctx.arc(px, py, 0.8 + r() * 2.2, 0, Math.PI * 2); ctx.fill(); }
+  } else if (F.fx === 'rays') {
+    ctx.save(); ctx.translate(W / 2, -H * 0.05); ctx.rotate(live ? t * 0.04 : 0);
+    for (let i = 0; i < 18; i++) { ctx.rotate(Math.PI * 2 / 18); ctx.fillStyle = i % 2 ? 'rgba(255,255,255,.035)' : 'rgba(255,215,140,.025)'; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-W * 0.12, H * 1.6); ctx.lineTo(W * 0.12, H * 1.6); ctx.closePath(); ctx.fill(); }
+    ctx.restore();
+  } else if (F.fx === 'sparkle') {
+    for (let i = 0; i < 60; i++) { const px = r() * W, py = ((r() * H - (live ? t * (6 + r() * 16) : 0)) % H + H) % H, rad = 1 + r() * 3; ctx.fillStyle = `rgba(242,${190 + Math.floor(r() * 50)},110,${0.12 + r() * 0.35})`; ctx.beginPath(); ctx.arc(px, py, rad, 0, Math.PI * 2); ctx.fill(); }
+  }
+}
+
+/* ---------- top section ---------- */
+function drawFreeHead(ctx, p, t, env, o, pal) {
+  const F = p.free, tall = H > W, ts = tall ? 1.15 : 1, top = tall ? 34 : 0;
+  if (F.head === 'none') return (tall ? 70 : 40);
+  const ta = p.lang === 'ta', simple = F.head === 'simple';
+  const ti = V(o.title, o.titlePh, env), tt = ti.s ? UP(ti.s) : '', hv = V(o.headline, o.headPh, env), hd = hv.s ? UP(hv.s) : '';
+  const lightInk = lum(F.text) > 0.5;
+  // logos in the corners
+  const la = EASE.out(prog(t, 0.15, 0.7));
+  ctx.save(); ctx.globalAlpha *= la;
+  const crest = getImg(CREST_SRC), ch = (simple ? 92 : 118) * ts;
+  if (SETTINGS.showCrest && crest) { const cw = ch * crest.naturalWidth / crest.naturalHeight; if (lightInk) { ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.beginPath(); ctx.ellipse(44 + cw / 2, 34 + top + ch / 2, cw / 2 + 10, ch / 2 + 8, 0, 0, Math.PI * 2); ctx.fill(); } ctx.drawImage(crest, 44, 34 + top, cw, ch); }
+  const media = lightInk ? mediaWhite() : getImg(MEDIA_SRC);
+  if (SETTINGS.showMedia && media) { const mh = (simple ? 78 : 96) * ts, mw0 = media.naturalWidth || media.width, mh0 = media.naturalHeight || media.height, mw = mh * mw0 / mh0; ctx.drawImage(media, W - 44 - mw, 42 + top, mw, mh); }
+  ctx.restore();
+  let y = 40 + top;
+  if (tt) { const lay = fitRich(ctx, tt, 'head', 700, 700, 600, 2, 40 * ts, 16), px = setFont(ctx, 'head', lay.size, 700, tt), lh = px * 1.1;
+    ctx.save(); ctx.globalAlpha *= EASE.out(prog(t, 0.35, 0.7)) * (ti.ph ? 0.45 : 1); drawRich(ctx, lay, 'head', 700, 700, W / 2, y + px * 0.92, lh, 'center', F.title, F.accent); ctx.restore(); y += lay.lines.length * lh + 4; }
+  if (!simple) { const sch = ta ? SETTINGS.schoolTa : SETTINGS.schoolEn, ss = fitSize(ctx, sch, 'head', 500, 560, 19 * ts, 9, 0.18), spx = setFont(ctx, 'head', ss, 500, sch);
+    ctx.save(); ctx.globalAlpha *= EASE.out(prog(t, 0.6, 0.6)); ctx.fillStyle = F.accent; drawText(ctx, sch, W / 2, y + spx * 1.4, 'center', ss * 0.18); ctx.restore(); y += spx * 2.1; }
+  y = Math.max(y, 34 + top + ch * 0.75);
+  if (hd) { const hs = fitSize(ctx, hd, 'display', 400, 880, 90 * ts, 28, 0.08), hpx = setFont(ctx, 'display', hs, 400, hd);
+    ctx.save(); ctx.globalAlpha *= hv.ph ? 0.45 : 1; ctx.fillStyle = F.title; drawHeadline(ctx, hd, W / 2, y + hpx * 0.88, 'center', hpx * 0.08, prog(t, 0.85, 0.9), motionOf(p).head, hpx); ctx.restore(); y += hpx * 0.95; }
+  // thin rule with three stars
+  const ra = EASE.inOut(prog(t, 1.0, 0.7)), rw = 300 * ra, ry = y + 14;
+  if (ra > 0) { ctx.fillStyle = hexA(F.accent, 0.8); ctx.fillRect(W / 2 - rw, ry, rw * 2, 2); for (let i = -1; i <= 1; i++) { ctx.save(); ctx.translate(W / 2 + i * 16, ry + 1); ctx.rotate(Math.PI / 4); ctx.fillStyle = F.accent; ctx.fillRect(-4 * ra, -4 * ra, 8 * ra, 8 * ra); ctx.restore(); } }
+  return ry + 28;
+}
+
+/* ---------- logos row block ---------- */
+function blockLogoImg(b, l) { return l ? getImg(b.clean === false ? (l.orig || l.src) : l.src) : null; }
+function drawLogoBox(c, im, x, y, w, h, plate) {
+  if (plate) { c.save(); c.shadowColor = 'rgba(0,0,0,.25)'; c.shadowBlur = 12; c.shadowOffsetY = 3; c.fillStyle = '#ffffff'; rrect(c, x, y, w, h, Math.min(w, h) * 0.16); c.fill(); c.restore(); const pd = Math.min(w, h) * 0.12; x += pd; y += pd; w -= pd * 2; h -= pd * 2; }
+  if (!im || !im.naturalWidth) return;
+  const s = Math.min(w / im.naturalWidth, h / im.naturalHeight);
+  c.drawImage(im, x + (w - im.naturalWidth * s) / 2, y + (h - im.naturalHeight * s) / 2, im.naturalWidth * s, im.naturalHeight * s);
+}
+function logoPlaceholder(c, cx, cy, r, pal, txt) {
+  c.save(); c.strokeStyle = pal.line; c.lineWidth = 3; c.setLineDash([10, 8]); c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.stroke(); c.setLineDash([]);
+  setFont(c, 'head', r * 0.28, 600, txt); c.fillStyle = pal.soft; c.globalAlpha *= 0.6; drawText(c, txt, cx, cy + r * 0.1, 'center', r * 0.02); c.restore();
+}
+function logosLayout(ctx, b, p, w, ts, env, pal) {
+  const L = (b.logos || []).filter(l => l && l.src);
+  if (!L.length && !env.preview) return null;
+  const items = L.length ? L : [null, null, null];
+  let lh = 118 * ts, gap = 30 * ts;
+  const ar = l => { const im = blockLogoImg(b, l); return im && im.naturalWidth ? Math.max(0.5, Math.min(3.2, im.naturalWidth / im.naturalHeight)) : 1; };
+  const widths = () => items.map(l => lh * ar(l) + (b.plate ? lh * 0.24 : 0));
+  let ws = widths(), total = ws.reduce((a, c) => a + c, 0) + gap * (items.length - 1);
+  if (total > w) { const k = w / total; lh *= k; gap *= k; ws = widths(); total = ws.reduce((a, c) => a + c, 0) + gap * (items.length - 1); }
+  const caps = items.map(l => (l && (l.cap || '').trim()) ? UP(l.cap.trim()) : ''), hasCap = caps.some(Boolean), cs = Math.max(11, lh * 0.15);
+  return { h: lh + (hasCap ? cs * 1.9 : 0) + 8, draw: (c, x, y, t, t0) => {
+    let cx0 = x + w / 2 - total / 2;
+    items.forEach((l, i) => {
+      const a = EASE.back(prog(t, t0 + i * 0.1, 0.5)), bw = ws[i];
+      if (a > 0) {
+        const cx = cx0 + bw / 2, cy = y + lh / 2;
+        c.save(); c.globalAlpha *= clamp01(a * 1.5); c.translate(cx, cy); c.scale(a, a); c.translate(-cx, -cy);
+        if (!l) logoPlaceholder(c, cx, cy, lh * 0.45, pal, 'LOGO');
+        else drawLogoBox(c, blockLogoImg(b, l), cx0, y, bw, lh, b.plate);
+        if (caps[i]) { const sz = fitSize(c, caps[i], 'head', 600, bw + gap * 0.8, cs, 8, 0.06); setFont(c, 'head', sz, 600, caps[i]); c.fillStyle = pal.ink; drawText(c, caps[i], cx, y + lh + cs * 1.45, 'center', sz * 0.06); }
+        c.restore();
+      }
+      cx0 += bw + gap;
+    });
+  } };
+}
+
+/* ---------- team vs team block ---------- */
+function versusLayout(ctx, b, p, w, ts, env, pal) {
+  const A = b.a, B = b.b, empty = s => !s.logo && !(s.name || '').trim();
+  if (empty(A) && empty(B) && !env.preview) return null;
+  const L = Math.min(w * 0.3, 240 * ts), colW = w * 0.42;
+  const side = (s, ph) => { const nm = UP((s.name || '').trim() || (env.preview ? ph : '')), lay = nm ? fitRich(ctx, nm, 'head', 600, 700, colW, 3, 36 * ts, 12) : null, px = lay ? setFont(ctx, 'head', lay.size, 600, nm) : 0;
+    const sub = UP((s.sub || '').trim()), ss = sub ? fitSize(ctx, sub, 'head', 500, colW, 22 * ts, 9, 0.06) : 0; return { s, nm, lay, px, sub, ss, ph: !(s.name || '').trim() }; };
+  const SA = side(A, 'TEAM ONE'), SB = side(B, 'TEAM TWO');
+  const textH = q => (q.lay ? q.lay.lines.length * q.px * 1.08 : 0) + (q.sub ? q.ss * 1.6 : 0);
+  const hh = L + 18 + Math.max(textH(SA), textH(SB));
+  return { h: hh + 6, draw: (c, x, y, t, t0) => {
+    const drawSide = (q, cx, dir, tt0) => {
+      const a = EASE.out(prog(t, tt0, 0.75)); if (a <= 0) return;
+      c.save(); c.globalAlpha *= clamp01(a * 1.4); c.translate((1 - a) * dir * w * 0.25, 0);
+      const im = q.s.logo ? getImg(b.clean === false ? (q.s.logo.orig || q.s.logo.src) : q.s.logo.src) : null;
+      if (im) { c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 24; c.shadowOffsetY = 6; drawLogoBox(c, im, cx - L / 2, y, L, L, false); c.restore(); }
+      else logoPlaceholder(c, cx, y + L / 2, L * 0.42, pal, 'LOGO');
+      let ty = y + L + 18;
+      if (q.lay) { c.save(); c.globalAlpha *= q.ph ? 0.45 : 1; setFont(c, 'head', q.lay.size, 600, q.nm); drawRich(c, q.lay, 'head', 600, 700, cx, ty + q.px * 0.9, q.px * 1.08, 'center', pal.ink, pal.kick); c.restore(); ty += q.lay.lines.length * q.px * 1.08; }
+      if (q.sub) { setFont(c, 'head', q.ss, 500, q.sub); c.fillStyle = pal.soft; drawText(c, q.sub, cx, ty + q.ss * 1.2, 'center', q.ss * 0.06); }
+      c.restore();
+    };
+    drawSide(SA, x + w * 0.21, -1, t0); drawSide(SB, x + w * 0.79, 1, t0 + 0.12);
+    // the VS mark slams in, with a light streak
+    const vs = UP((b.vs || 'VS').trim() || 'VS'), va = prog(t, t0 + 0.45, 0.5); if (va <= 0) return;
+    const cx = x + w / 2, cy = y + L * 0.5, vsz = fitSize(c, vs, 'display', 400, w * 0.2, L * 0.62, 20, 0.02), sc = 2.2 - 1.2 * EASE.back(va);
+    c.save(); c.globalAlpha *= clamp01(va * 2); c.translate(cx, cy); c.scale(sc, sc); c.transform(1, 0, -0.18, 1, 0, 0);
+    const px = setFont(c, 'display', vsz, 400, vs), g = c.createLinearGradient(0, -px * 0.5, 0, px * 0.4);
+    g.addColorStop(0, '#ffffff'); g.addColorStop(0.5, '#cfcfcf'); g.addColorStop(0.56, pal.kick); g.addColorStop(1, pal.kick);
+    c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 18; c.shadowOffsetY = 5; c.fillStyle = lum(pal.ink) > 0.5 ? g : pal.kick; drawText(c, vs, 0, px * 0.36, 'center', vsz * 0.02);
+    c.restore();
+    const st = clamp01((t - t0 - 0.5) / 0.6);
+    if (st > 0 && st < 1 || t === Infinity) { c.save(); c.globalAlpha *= t === Infinity ? 0.7 : Math.sin(st * Math.PI); c.strokeStyle = pal.kick; c.lineWidth = 3; c.beginPath(); c.moveTo(cx + L * 0.25, cy - L * 0.45); c.lineTo(cx - L * 0.25, cy + L * 0.45); c.stroke(); c.restore(); }
+  } };
+}
+
+/* ---------- logo uploads: remove the white box around a logo (flood fill from the edges) ---------- */
+function knockWhite(src) {
+  return new Promise(res => {
+    const im = new Image();
+    im.onload = () => {
+      try {
+        const c = mkCanvas(im.naturalWidth, im.naturalHeight), x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(im, 0, 0);
+        const W2 = c.width, H2 = c.height, d = x.getImageData(0, 0, W2, H2), a = d.data, near = i => a[i + 3] > 0 && a[i] > 228 && a[i + 1] > 228 && a[i + 2] > 228;
+        let edge = 0, white = 0;
+        for (let i = 0; i < W2; i++) for (const yy of [0, H2 - 1]) { edge++; if (near((yy * W2 + i) * 4)) white++; }
+        for (let j = 0; j < H2; j++) for (const xx of [0, W2 - 1]) { edge++; if (near((j * W2 + xx) * 4)) white++; }
+        if (white / edge < 0.6) return res(null);
+        const seen = new Uint8Array(W2 * H2), st = [];
+        const push = (px, py) => { const k = py * W2 + px; if (!seen[k] && near(k * 4)) { seen[k] = 1; st.push(k); } };
+        for (let i = 0; i < W2; i++) { push(i, 0); push(i, H2 - 1); } for (let j = 0; j < H2; j++) { push(0, j); push(W2 - 1, j); }
+        while (st.length) { const k = st.pop(), px = k % W2, py = (k / W2) | 0; a[k * 4 + 3] = 0; if (px > 0) push(px - 1, py); if (px < W2 - 1) push(px + 1, py); if (py > 0) push(px, py - 1); if (py < H2 - 1) push(px, py + 1); }
+        // soften the edge: half-transparent for light pixels touching the removed area
+        for (let py = 1; py < H2 - 1; py++) for (let px = 1; px < W2 - 1; px++) { const k = py * W2 + px; if (seen[k]) continue; if (seen[k - 1] || seen[k + 1] || seen[k - W2] || seen[k + W2]) { const i = k * 4, l = (a[i] + a[i + 1] + a[i + 2]) / 3; if (l > 200) a[i + 3] = Math.min(a[i + 3], Math.round((255 - l) * 4.5)); } }
+        x.putImageData(d, 0, 0); res(c.toDataURL('image/png'));
+      } catch (e) { res(null); }
+    };
+    im.onerror = () => res(null); im.src = src;
+  });
+}
+async function readLogo(file) {
+  const ph = await processImage(file);
+  const clean = ph.cut ? null : await knockWhite(ph.src);
+  return { src: clean || ph.src, orig: ph.src, cap: '' };
+}
+
+/* ---------- editors ---------- */
+function blkSize(b) {
+  const val = h('b', { style: { color: 'var(--m)', minWidth: '46px', textAlign: 'right' } }, Math.round((b.size || 1) * 100) + '%');
+  const r = h('input', { type: 'range', class: 'range', min: 0.5, max: 2.2, step: 0.05, value: b.size || 1 });
+  r.addEventListener('input', () => { b.size = +r.value; val.textContent = Math.round(b.size * 100) + '%'; changed(); });
+  return fld('Size', h('div', { style: { display: 'flex', alignItems: 'center', gap: '12px' } }, r, val));
+}
+function cleanToggle(b) {
+  const el = h('input', { type: 'checkbox' }); el.checked = b.clean !== false; el.addEventListener('change', () => { b.clean = el.checked; changed(); });
+  return h('label', { class: 'chk' }, el, 'Remove white box around logos');
+}
+function logosEditor(b, redraw) {
+  const row = h('div', { class: 'spons' });
+  b.logos.forEach((l, i) => row.appendChild(h('div', { class: 'lg-item' },
+    h('div', { class: 'sp-th', style: { backgroundImage: 'url(' + (b.clean === false ? (l.orig || l.src) : l.src) + ')' } },
+      h('button', { class: 'x', type: 'button', 'aria-label': 'Remove logo', onclick: () => { b.logos.splice(i, 1); changed(); redraw(); } }, '×')),
+    h('input', { class: 'inp lg-cap', value: l.cap || '', placeholder: 'Caption', oninput: e => { l.cap = e.target.value; changed(); } }))));
+  row.appendChild(h('button', { class: 'sp-add', type: 'button', onclick: async () => {
+    const files = await pickFile('image/*', true); if (!files || !files.length) return;
+    for (const f of files) { if (b.logos.length >= 10) break; try { b.logos.push(await readLogo(f)); } catch (e) { toast(e.message); } }
+    changed(); redraw();
+  } }, svg(ICON.plus), 'Add logos'));
+  const plate = h('input', { type: 'checkbox' }); plate.checked = !!b.plate; plate.addEventListener('change', () => { b.plate = plate.checked; changed(); });
+  return h('div', null, row, h('p', { class: 'note', style: { margin: '6px 0' } }, 'Organisers, sponsors, partner schools — up to 10, in one row. Captions are optional.'),
+    h('label', { class: 'chk' }, plate, 'Put logos on white cards'), cleanToggle(b), blkSize(b));
+}
+function versusEditor(b, redraw) {
+  const sideEd = (s, label) => {
+    const th = h('button', { class: 'th' + (s.logo ? ' has' : ''), type: 'button', title: 'Choose logo', onclick: async () => { const f = await pickFile(); if (!f) return; try { s.logo = await readLogo(f); changed(); redraw(); } catch (e) { toast(e.message); } } });
+    if (s.logo) th.style.backgroundImage = 'url(' + (b.clean === false ? (s.logo.orig || s.logo.src) : s.logo.src) + ')'; else th.appendChild(svg(ICON.photo));
+    return h('div', { class: 'vs-side' }, h('small', null, label), h('div', { class: 'stu-top' }, th,
+      h('div', { class: 'grid', style: { gridTemplateColumns: '1fr' } }, textIn(s, 'name', 'School / team name'), textIn(s, 'sub', 'Town / short line'))),
+      h('div', { class: 'vs-tools' }, h('button', { class: 'btn soft sm', type: 'button', onclick: () => { s.logo = { src: CREST_SRC, orig: CREST_SRC }; if (!s.name.trim()) s.name = 'Baduriya Central College'; if (!s.sub.trim()) s.sub = 'Mawanella'; changed(); redraw(); } }, 'Use our school'),
+        s.logo ? h('button', { class: 'btn soft sm', type: 'button', onclick: () => { s.logo = null; changed(); redraw(); } }, 'Remove logo') : null));
+  };
+  return h('div', null, h('div', { class: 'vs-grid' }, sideEd(b.a, 'Left side'), sideEd(b.b, 'Right side')),
+    fld('Middle word', textIn(b, 'vs', 'VS'), 'e.g. VS, V, &, MEETS'), cleanToggle(b), blkSize(b));
+}
+function colorPick(obj, key, label, sw, onSet) {
+  const inp = h('input', { type: 'color', class: 'colorin', value: obj[key] });
+  const btns = sw.map(c => h('button', { class: 'swb', type: 'button', title: c, style: { background: c }, onclick: () => set(c) }));
+  const mark = () => btns.forEach((bt, i) => bt.classList.toggle('on', sw[i].toLowerCase() === String(obj[key]).toLowerCase()));
+  const set = c => { obj[key] = c; inp.value = c; mark(); changed(); if (onSet) onSet(); };
+  inp.addEventListener('input', () => set(inp.value)); mark();
+  return fld(label, h('div', { class: 'sw-row' }, btns, inp));
+}
+function freeSection(p, redrawForm) {
+  const F = freeOf(p), parts = [];
+  parts.push(fld('Background', segIn([{ k: 'design', label: 'Design style' }, { k: 'colour', label: 'My colours' }, { k: 'photo', label: 'My photo' }], F.bg, k => {
+    F.bg = k; changed(); redrawForm();
+    if (k === 'photo' && !F.photo) setTimeout(() => { const b = document.querySelector('.free-photo-btn'); if (b) b.click(); }, 60);
+  }), F.bg === 'design' ? 'Uses the Signature / Celebration / Classic design above. Choose “My colours” or “My photo” to design your own background.' : null));
+  if (F.bg !== 'design') {
+    parts.push(fld('Ready-made colours', h('div', { class: 'preset-row' }, FREE_PRESETS.map(pr => h('button', { class: 'preset', type: 'button', onclick: () => { Object.assign(F, pr.v); changed(); redrawForm(); } },
+      h('span', { class: 'pv-sw', style: { background: `linear-gradient(135deg,${pr.v.c1},${pr.v.c2})` } }, h('i', { style: { background: pr.v.accent } })), pr.label)))));
+    if (F.bg === 'photo') {
+      const th = h('div', { class: 'free-th' + (F.photo ? ' has' : ''), style: F.photo ? { backgroundImage: 'url(' + F.photo.src + ')' } : {} });
+      parts.push(fld('Background photo', h('div', { class: 'free-photo' }, th, h('div', null,
+        h('button', { class: 'btn out sm free-photo-btn', type: 'button', onclick: async () => { const f = await pickFile(); if (!f) return; try { F.photo = await processImage(f); F.photo.face = null; changed(); redrawForm(); } catch (e) { toast(e.message); } } }, svg(ICON.images), F.photo ? 'Change photo' : 'Choose photo'),
+        h('div', { class: 'help', style: { marginTop: '6px' } }, 'A stadium, hall or event photo works well. It is darkened so the words stay readable.')))));
+      parts.push(rangeIn(F, 'dark', 0, 0.9, 'Darken the photo'), rangeIn(F, 'pos', 0, 1, 'Photo position (top ↔ bottom)'));
+      parts.push(colorPick(F, 'tint', 'Darkening colour', ['#000000', '#1a0000', '#3a0008', '#800000', '#1f1d1d', '#ffffff']));
+    } else {
+      parts.push(h('div', { class: 'row2' }, colorPick(F, 'c1', 'Top colour', SW_BG), colorPick(F, 'c2', 'Bottom colour', SW_BG)));
+    }
+    parts.push(fld('Effect', segIn([{ k: 'none', label: 'None' }, { k: 'spot', label: 'Stadium lights' }, { k: 'rays', label: 'Light rays' }, { k: 'sparkle', label: 'Sparkles' }], F.fx, k => { F.fx = k; changed(); })));
+    parts.push(colorPick(F, 'title', 'Title colour', SW_INK), colorPick(F, 'accent', 'Highlight colour (**bold** words, VS, lines)', SW_INK), colorPick(F, 'text', 'Text colour', SW_INK));
+  }
+  return sec(3, 'Background & colours', ...parts);
+}
+/** ready-made block layouts */
+async function applyPreset(p, kind, redrawForm) {
+  const has = p.blocks.some(b => (b.text || '').trim() || (b.media || []).length || (b.logos || []).length);
+  if (has && !(await modal('Replace your blocks?', 'This sets up a ready-made layout. Your current blocks will be replaced.', [{ label: 'Cancel', value: false }, { label: 'Replace', value: true, pri: true }]))) return;
+  const F = freeOf(p);
+  if (kind === 'match') {
+    Object.assign(F, FREE_PRESETS[0].v, { bg: F.bg === 'photo' ? 'photo' : 'colour', head: 'none' });
+    p.blocks = [Object.assign(newBlock('logos'), { size: 1.1 }),
+      Object.assign(newBlock('heading'), { text: 'TOURNAMENT OR ASSOCIATION NAME', font: 'tall', fx: 'metal', size: 1.35 }),
+      Object.assign(newBlock('text'), { text: 'Under 16 Inter Schools Championship\n**2026 · Division I**', font: 'bold', size: 1.1 }),
+      Object.assign(newBlock('versus'), { a: { logo: { src: CREST_SRC, orig: CREST_SRC }, name: 'Baduriya Central College', sub: 'Mawanella' } }),
+      newBlock('details'), newBlock('logos')];
+  } else {
+    Object.assign(F, FREE_PRESETS[1].v, { bg: F.bg === 'photo' ? 'photo' : 'colour', head: 'school' });
+    p.f.headline = p.f.headline || 'NOTICE';
+    p.blocks = [Object.assign(newBlock('heading'), { text: 'EVENT NAME', font: 'tall', fx: 'shadow', size: 1.2 }), Object.assign(newBlock('text'), { text: 'A short line about the event. Use **stars** to highlight words.' }), newBlock('details'), newBlock('photos')];
+  }
+  changed(); redrawForm(); toast('Layout ready — now fill in your words and logos');
+}
+
+/* =====================================================================
    CUSTOM POST BUILDER — make any post from blocks, save as "My template"
    Text blocks keep their natural height; photo / people blocks share the
    space that is left, so the design always fills the page.
@@ -6431,7 +6752,8 @@ CATALOG.forEach(g => g.items.forEach(it => { if (['exam', 'sports', 'invite'].in
 const BLOCK_TYPES = [
   { k: 'heading', label: 'Heading', icon: 'edit' }, { k: 'text', label: 'Paragraph', icon: 'news' }, { k: 'bigword', label: 'Big word', icon: 'spark' },
   { k: 'photos', label: 'Photos / videos', icon: 'images' }, { k: 'people', label: 'People cards', icon: 'users' }, { k: 'list', label: 'List / table', icon: 'table' },
-  { k: 'stats', label: 'Big numbers', icon: 'trophy' }, { k: 'details', label: 'Date • time • venue', icon: 'cal' }, { k: 'quote', label: 'Quote', icon: 'mega' }, { k: 'qr', label: 'QR code', icon: 'grid' }
+  { k: 'stats', label: 'Big numbers', icon: 'trophy' }, { k: 'details', label: 'Date • time • venue', icon: 'cal' }, { k: 'quote', label: 'Quote', icon: 'mega' }, { k: 'qr', label: 'QR code', icon: 'grid' },
+  { k: 'logos', label: 'Logos row', icon: 'images' }, { k: 'versus', label: 'Team vs team', icon: 'trophy' }
 ];
 function newBlock(k) {
   const b = { id: uid(), k };
@@ -6441,27 +6763,48 @@ function newBlock(k) {
   else if (k === 'details') Object.assign(b, { date: '', time: '', venue: '' });
   else if (k === 'qr') Object.assign(b, { link: '', label: '' });
   else if (k === 'quote') Object.assign(b, { text: '', by: '' });
+  else if (k === 'logos') Object.assign(b, { logos: [], plate: false, clean: true, size: 1 });
+  else if (k === 'versus') Object.assign(b, { a: { logo: null, name: '', sub: '' }, b: { logo: null, name: '', sub: '' }, vs: 'VS', clean: true, size: 1 });
   else b.text = '';
   return b;
 }
 /** turn a block into something that can be measured and drawn */
 function blockLayout(ctx, b, p, w, k, env, pal) {
-  const ts = (H > W ? 1.2 : 1) * k, ta = p.lang === 'ta';
+  const ts = (H > W ? 1.2 : 1) * k * (b.size || 1), ta = p.lang === 'ta';
   const txt = (role, wN, size, maxLines, col, colB, align = 'center', lhK = 1.3) => {
     const s = (b.text || '').trim(); if (!s) return null;
     const lay = fitRich(ctx, s, role, wN, 700, w, maxLines, size * ts, 9), px = setFont(ctx, role, lay.size, wN, s), lh = px * lhK;
     return { h: lay.lines.length * lh + 8, draw: (c, x, y) => drawRich(c, lay, role, wN, 700, align === 'center' ? x + w / 2 : x, y + px * 0.95, lh, align, col, colB) };
   };
   switch (b.k) {
-    case 'heading': return txt('head', 700, 44, 2, pal.acc, pal.acc, 'center', 1.12);
-    case 'text': return txt('body', 400, 22, 6, pal.ink, pal.acc, 'center', 1.42);
+    case 'heading': {
+      const s = (b.text || '').trim(); if (!s) return null;
+      const role = b.font === 'tall' ? 'display' : 'head', wN = role === 'display' ? 400 : 700, sz = (role === 'display' ? 58 : 44) * ts;
+      const lay = fitRich(ctx, s, role, wN, wN, w, 3, sz, 9), px = setFont(ctx, role, lay.size, wN, s), lh = px * (role === 'display' ? 1.02 : 1.12);
+      return { h: lay.lines.length * lh + 10, draw: (c, x, y) => {
+        lay.lines.forEach((ln, i) => {
+          const one = { size: lay.size, lines: [ln] }, by = y + px * 0.95 + i * lh;
+          c.save();
+          let col = pal.acc;
+          if (b.fx === 'metal') { const g = c.createLinearGradient(0, by - px * 0.85, 0, by + px * 0.1), lt = lum(pal.acc) > 0.5, base = /^#[0-9a-f]{6}$/i.test(pal.acc) ? pal.acc : '#800000';
+            if (lt) { g.addColorStop(0, '#ffffff'); g.addColorStop(0.42, '#e6e6e6'); g.addColorStop(0.55, '#9d9d9d'); g.addColorStop(0.7, '#d4d4d4'); g.addColorStop(1, '#ffffff'); }
+            else { g.addColorStop(0, mixHex(base, '#ffffff', 0.35)); g.addColorStop(0.45, base); g.addColorStop(0.56, mixHex(base, '#000000', 0.45)); g.addColorStop(1, mixHex(base, '#ffffff', 0.2)); }
+            col = g; c.shadowColor = lt ? 'rgba(0,0,0,.55)' : 'rgba(0,0,0,.25)'; c.shadowBlur = px * 0.16; c.shadowOffsetY = px * 0.05; }
+          else if (b.fx === 'glow') { c.shadowColor = pal.kick; c.shadowBlur = px * 0.5; }
+          else if (b.fx === 'shadow') { c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = px * 0.12; c.shadowOffsetY = px * 0.06; }
+          drawRich(c, one, role, wN, wN, x + w / 2, by, lh, 'center', col, pal.kick);
+          c.restore();
+        });
+      } };
+    }
+    case 'text': return txt(b.font === 'bold' ? 'head' : 'body', b.font === 'bold' ? 500 : 400, b.font === 'bold' ? 28 : 22, 6, pal.ink, pal.kick, 'center', b.font === 'bold' ? 1.25 : 1.42);
     case 'bigword': {
       const s = UP((b.text || '').trim()); if (!s) return null;
       const hh = 92 * ts, sz = fitSize(ctx, s, 'display', 400, w - 120, hh * 0.78, 18, 0.06);
       return { h: hh + 10, draw: (c, x, y, t, t0) => { const a = prog(t, t0, 0.55), e = EASE.back(a); if (a <= 0) return; const px = setFont(c, 'display', sz, 400, s), tw = measure(c, s, sz * 0.06), pw = tw + 80, cx = x + w / 2, cy = y + hh / 2;
         c.save(); c.globalAlpha *= clamp01(a * 2); c.translate(cx, cy); const sc = 1.6 - 0.6 * e; c.scale(sc, sc); c.translate(-cx, -cy);
-        c.fillStyle = pal.k === 'festive' ? '#F7D46B' : '#800000'; c.fillRect(cx - pw / 2, y, pw, hh); if (pal.k === 'signature') { c.strokeStyle = GOLD.mid; c.lineWidth = 3; c.strokeRect(cx - pw / 2 + 7, y + 7, pw - 14, hh - 14); }
-        c.fillStyle = pal.k === 'festive' ? '#6E0000' : '#fff'; drawText(c, s, cx, cy + px * 0.36, 'center', sz * 0.06); c.restore(); } };
+        c.fillStyle = pal.k === 'festive' ? '#F7D46B' : pal.k === 'free' ? pal.kick : '#800000'; c.fillRect(cx - pw / 2, y, pw, hh); if (pal.k === 'signature') { c.strokeStyle = GOLD.mid; c.lineWidth = 3; c.strokeRect(cx - pw / 2 + 7, y + 7, pw - 14, hh - 14); }
+        c.fillStyle = pal.k === 'festive' ? '#6E0000' : pal.k === 'free' ? inkOn(pal.kick) : '#fff'; drawText(c, s, cx, cy + px * 0.36, 'center', sz * 0.06); c.restore(); } };
     }
     case 'quote': {
       const s = (b.text || '').trim(); if (!s) return null;
@@ -6501,6 +6844,8 @@ function blockLayout(ctx, b, p, w, k, env, pal) {
       const qs = 170 * ts, hh = qs * 1.2 + qs * 0.21;
       return { h: hh + 10, draw: (c, x, y, t, t0) => drawQRCard(c, link, x + w / 2, y + hh / 2 + 4, qs, UP((b.label || '').trim() || (ta ? 'ஸ்கேன் செய்யவும்' : 'SCAN ME')), null, prog(t, t0, 0.6)) };
     }
+    case 'logos': return logosLayout(ctx, b, p, w, ts, env, pal);
+    case 'versus': return versusLayout(ctx, b, p, w, ts, env, pal);
     case 'photos': {
       if (!b.media.length && !env.preview) return null;
       return { flex: true, min: 160, draw: (c, x, y, ww, hh, t, t0) => { const n = Math.min(5, Math.max(1, b.media.length)), rects = collageRects(b.media.length ? n : 3, { x, y, w: ww, h: hh }); rects.forEach((r, i) => drawTile(c, b.media[i], r, pal, t, t0 + i * 0.12, motionOf(p), i, i === rects.length - 1 ? b.media.length - n : 0)); } };
@@ -6531,14 +6876,17 @@ const CUSTOM = {
   },
   ph(p) { return p.lang === 'ta' ? { title: 'நிகழ்வின் பெயர்', head: 'வாழ்த்துகள்' } : { title: 'YOUR EVENT TITLE', head: 'HIGHLIGHTS' }; },
   label(p) { return p.f.title || 'Custom post'; },
+  portrait: true,
   draw(ctx, p, t, env) {
-    if (p.style === 'classic' && H !== W) return drawFramed(ctx, p, t, env, { drawClassic: (c, pp, tt, ee) => CUSTOM.poster(c, pp, tt, ee) });
+    if (p.style === 'classic' && H !== W && !isFree(p)) return drawFramed(ctx, p, t, env, { drawClassic: (c, pp, tt, ee) => CUSTOM.poster(c, pp, tt, ee) });
     return this.poster(ctx, p, t, env);
   },
   drawClassic(ctx, p, t, env) { return this.poster(ctx, p, t, env); },
   poster(ctx, p, t, env) {
-    const pal = palOf(p), f = p.f, ph = this.ph(p);
-    const y0 = drawHead(ctx, p, t, env, { title: f.title, titlePh: ph.title, headline: f.headline || ph.head, small: true });
+    const free = isFree(p), pal = free ? freePal(p) : palOf(p), f = p.f, ph = this.ph(p);
+    let y0;
+    if (free) { drawFreeBg(ctx, p, t); y0 = drawFreeHead(ctx, p, t, env, { title: f.title, titlePh: ph.title, headline: f.headline, headPh: ph.head }, pal); }
+    else y0 = drawHead(ctx, p, t, env, { title: f.title, titlePh: ph.title, headline: f.headline || ph.head, small: true });
     const fy = drawFoot(ctx, p, t, f.wishes, pal);
     const x = 50, w = W - 100, gap = 18, avail = fy - y0 - 20;
     let k = 1, L = [], need = 0;
@@ -6563,7 +6911,12 @@ const CUSTOM = {
   },
   form(pane, p, ph) {
     const f = p.f;
-    pane.appendChild(sec(2, 'Top of the post', fld('Title', textIn(f, 'title', ph.title, { area: true })), fld('Big headline', textIn(f, 'headline', ph.head), 'e.g. CONGRATULATIONS, HIGHLIGHTS, WELCOME, NOTICE', true)));
+    freeOf(p);
+    const redrawForm = () => buildForm($('#paneForm'));
+    pane.appendChild(sec(2, 'Top of the post',
+      isFree(p) ? fld('Top section', segIn([{ k: 'school', label: 'School header' }, { k: 'simple', label: 'Title only' }, { k: 'none', label: 'None' }], p.free.head, k => { p.free.head = k; changed(); }), '“None” gives you a clean page — add a Logos row and a Heading block to build your own top, like a match poster.') : null,
+      fld('Title', textIn(f, 'title', ph.title, { area: true })), fld('Big headline', textIn(f, 'headline', ph.head), 'e.g. CONGRATULATIONS, HIGHLIGHTS, WELCOME, NOTICE', true)));
+    pane.appendChild(freeSection(p, redrawForm));
     const box = h('div');
     const draw = () => {
       box.innerHTML = '';
@@ -6577,7 +6930,14 @@ const CUSTOM = {
         else if (b.k === 'qr') body = h('div', null, textIn(b, 'link', 'https://…'), h('div', { style: { marginTop: '8px' } }, textIn(b, 'label', 'Label, e.g. SCAN FOR PHOTOS')));
         else if (b.k === 'quote') body = h('div', null, textIn(b, 'text', 'Quote', { area: true }), h('div', { style: { marginTop: '8px' } }, textIn(b, 'by', 'Who said it (optional)')));
         else if (b.k === 'list') body = textIn(b, 'text', 'One item per line.\nFor a table, separate columns with |  e.g.  Name | Event | Place', { area: true });
-        else body = textIn(b, 'text', b.k === 'heading' ? 'Heading' : b.k === 'bigword' ? 'e.g. CHAMPIONS' : 'Write here… use **stars** for bold', { area: b.k === 'text' });
+        else if (b.k === 'logos') body = logosEditor(b, draw);
+        else if (b.k === 'versus') body = versusEditor(b, draw);
+        else body = textIn(b, 'text', b.k === 'heading' ? 'Heading — **stars** colour words with the highlight colour' : b.k === 'bigword' ? 'e.g. CHAMPIONS' : 'Write here… use **stars** for bold', { area: b.k === 'text' || b.k === 'heading' });
+        if (b.k === 'quote' || b.k === 'bigword' || b.k === 'list') body = h('div', null, body, blkSize(b));
+        if (b.k === 'heading') body = h('div', null, body,
+          fld('Font', segIn([{ k: 'strong', label: 'Strong' }, { k: 'tall', label: 'Tall & bold' }], b.font || 'strong', k => { b.font = k; changed(); })),
+          fld('Effect', segIn([{ k: 'plain', label: 'Plain' }, { k: 'metal', label: 'Metal' }, { k: 'glow', label: 'Glow' }, { k: 'shadow', label: 'Shadow' }], b.fx || 'plain', k => { b.fx = k; changed(); })), blkSize(b));
+        if (b.k === 'text') body = h('div', null, body, fld('Style', segIn([{ k: 'normal', label: 'Normal' }, { k: 'bold', label: 'Bold sub-title' }], b.font || 'normal', k => { b.font = k; changed(); })), blkSize(b));
         box.appendChild(h('div', { class: 'blk' },
           h('div', { class: 'blk-h' }, h('span', { class: 'blk-ic' }, svg(ICON[T2.icon] || ICON.plus)), h('b', null, T2.label),
             h('button', { class: 'ibtn', type: 'button', title: 'Move up', onclick: () => { if (i > 0) { [p.blocks[i - 1], p.blocks[i]] = [p.blocks[i], p.blocks[i - 1]]; changed(); draw(); } } }, svg(ICON.upA)),
@@ -6586,17 +6946,22 @@ const CUSTOM = {
           body));
       });
       box.appendChild(h('div', { class: 'blk-add' }, h('small', null, 'Add a block:'),
-        h('div', { class: 'blk-grid' }, BLOCK_TYPES.map(T2 => h('button', { class: 'blk-btn', type: 'button', onclick: () => { if (p.blocks.length >= 10) return toast('10 blocks maximum'); p.blocks.push(newBlock(T2.k)); changed(); draw(); } }, svg(ICON[T2.icon] || ICON.plus), T2.label)))));
+        h('div', { class: 'blk-grid' }, BLOCK_TYPES.map(T2 => h('button', { class: 'blk-btn', type: 'button', onclick: () => { if (p.blocks.length >= 12) return toast('12 blocks maximum'); p.blocks.push(newBlock(T2.k)); changed(); draw(); } }, svg(ICON[T2.icon] || ICON.plus), T2.label)))));
     };
     draw();
-    pane.appendChild(sec(3, 'Blocks', h('p', { class: 'note' }, 'Build the post from blocks, top to bottom. Photo and people blocks stretch to fill the free space.'), box));
-    pane.appendChild(sec(4, 'Footer & saving',
+    pane.appendChild(sec(4, 'Blocks', h('p', { class: 'note' }, 'Build the post from blocks, top to bottom. Photo and people blocks stretch to fill the free space.'),
+      h('div', { class: 'blk-quick' }, h('small', null, 'Quick start:'),
+        h('button', { class: 'btn out sm', type: 'button', onclick: () => applyPreset(p, 'match', redrawForm) }, svg(ICON.trophy), 'Match day (team vs team)'),
+        h('button', { class: 'btn out sm', type: 'button', onclick: () => applyPreset(p, 'event', redrawForm) }, svg(ICON.cal), 'Event notice')),
+      box));
+    pane.appendChild(sec(5, 'Bottom: footer & logos',
       fld('Footer line', textIn(f, 'wishes', '', { area: true }), 'Use **stars** for bold.', true), sponsorsEditor(p),
+      h('p', { class: 'note' }, 'Tip: logos added here sit in a row at the very bottom. For logos anywhere else (top, middle), add a “Logos row” block.'),
       h('button', { class: 'btn out block', type: 'button', style: { marginTop: '10px' }, onclick: () => saveMyTemplate(p) }, svg(ICON.file), 'Save as “My template”')));
   },
   caption(p) {
     const clean = x => String(x || '').replace(/\*\*/g, '');
-    const parts = p.blocks.map(b => b.k === 'details' ? [b.date, b.time, b.venue].filter(Boolean).join(' • ') : b.k === 'qr' ? normLink(b.link) : b.k === 'people' ? b.people.filter(x => x.name).map(x => x.name + (x.label ? ' – ' + x.label : '')).join('\n') : b.k === 'stats' ? b.items.filter(s => s.n).map(s => s.n + ' ' + s.l).join('\n') : clean(b.text)).filter(Boolean);
+    const parts = p.blocks.map(b => b.k === 'details' ? [b.date, b.time, b.venue].filter(Boolean).join(' • ') : b.k === 'qr' ? normLink(b.link) : b.k === 'people' ? b.people.filter(x => x.name).map(x => x.name + (x.label ? ' – ' + x.label : '')).join('\n') : b.k === 'stats' ? b.items.filter(s => s.n).map(s => s.n + ' ' + s.l).join('\n') : b.k === 'versus' ? [b.a.name, b.b.name].filter(Boolean).join(' 🆚 ') : b.k === 'logos' ? '' : clean(b.text)).filter(Boolean);
     return `✨ ${p.f.headline || 'HIGHLIGHTS'} ✨\n${clean(p.f.title)}\n\n${parts.join('\n\n')}\n\n${clean(p.f.wishes)}\n\n${SETTINGS.hashtags}`;
   }
 };
@@ -6625,8 +6990,11 @@ async function saveMyTemplate(p) {
   if (!ok) return;
   const copy = JSON.parse(JSON.stringify({ ...p, id: undefined, updated: undefined, sponsors: [] }));
   copy.blocks.forEach(b => { if (b.media) b.media = []; if (b.people) b.people.forEach(x => x.photo = null); });
-  const list = myTemplates(); list.unshift({ id: uid(), name: name.value.trim() || 'My template', p: copy });
-  toast(setMyTemplates(list.slice(0, 20)) ? 'Saved — find it on the home screen under “My templates”' : 'Could not save on this device');
+  const list = myTemplates(), entry = { id: uid(), name: name.value.trim() || 'My template', p: copy }; list.unshift(entry);
+  let ok2 = setMyTemplates(list.slice(0, 20)), note = '';
+  if (!ok2 && copy.free && copy.free.photo) { copy.free.photo = null; note = ' (background photo not kept — too big)'; ok2 = setMyTemplates(list.slice(0, 20)); }
+  if (!ok2) { copy.blocks.forEach(b => { if (b.logos) b.logos = []; if (b.a) { b.a.logo = null; b.b.logo = null; } }); note = ' (logos not kept — too big)'; ok2 = setMyTemplates(list.slice(0, 20)); }
+  toast(ok2 ? 'Saved — find it on the home screen under “My templates”' + note : 'Could not save on this device', 3500);
 }
 
 TEMPLATES.custom = CUSTOM;

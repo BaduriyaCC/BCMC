@@ -2,7 +2,7 @@
    The app page is fetched fresh when online (so updates arrive) and served
    from the cache when offline. Fonts and the helper libraries are kept after
    the first visit so posters and videos can be made without internet. */
-const VERSION = '202611091205';
+const VERSION = '202611100839';
 const APP_CACHE = 'bmp-app-' + VERSION, LIB_CACHE = 'bmp-libs-v1';
 const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Anek+Tamil:wdth,wght@75..100,400..800&family=Bebas+Neue&family=Mukta+Malar:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap';
 const APP_FILES = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png'];
