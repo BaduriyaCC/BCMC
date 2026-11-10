@@ -42,7 +42,7 @@ self.addEventListener('fetch', e => {
   if (req.mode === 'navigate' || (url.origin === location.origin && /\/(index\.html)?$/.test(url.pathname))) {
     e.respondWith((async () => {
       try {
-        const r = await fetch(req);
+          const r = await fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' });
         if (r.ok) { const c = await caches.open(APP_CACHE); c.put('./index.html', r.clone()); }
         return r;
       } catch (err) {
