@@ -63,7 +63,7 @@ self.addEventListener('fetch', e => {
       const lib = await caches.open(LIB_CACHE);
       const hit = await lib.match(req, { ignoreVary: true });
       if (hit) return hit;
-      const r = await fetch(req);
+      const r = await fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' });
       if (r.ok || r.type === 'opaque') lib.put(req, r.clone()).catch(() => {});
       return r;
     })());
